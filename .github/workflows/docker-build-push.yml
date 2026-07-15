@@ -58,11 +58,11 @@ jobs:
       - name: Compute SHORT_SHA
         run: echo "SHA=${GITHUB_SHA::6}" >> $GITHUB_ENV
 
-      - name: Bump chart image tag
+      - name: Bump image tag (태그 전용 파일)
         run: |
-          yq eval -i '.image.tag = strenv(SHA)' chart/values.yaml
-          echo "=== chart/values.yaml (image) ==="
-          grep -A3 '^image:' chart/values.yaml
+          yq eval -i '.image.tag = strenv(SHA)' chart/tag.yaml
+          echo "=== chart/tag.yaml ==="
+          cat chart/tag.yaml
 
       - name: Commit and push
         run: |
@@ -72,7 +72,11 @@ jobs:
             echo "No tag change — skipping commit"
             exit 0
           fi
-          git add chart/values.yaml
+          git add chart/tag.yaml
           git commit -m "ci: bump image tag to ${SHA} [skip ci]"
-          # GITHUB_TOKEN 로 push (재귀 트리거 안 됨)
+          # 태그 전용 파일만 커밋 → 사람 편집과 충돌 불가. 경합 시 rebase 재시도(x3).
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase --autostash
+          done
           git push
