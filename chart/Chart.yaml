@@ -1,0 +1,6 @@
+apiVersion: v2
+name: palworld-admin
+description: Palworld 서버 관리 대시보드 (상태·설정 조회 + 업데이트 트리거)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

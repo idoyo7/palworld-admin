@@ -1,0 +1,41 @@
+# palworld-admin 차트 기본값. 환경별 오버라이드는 mont-helm/stage/palworld-admin/cvalues.yaml.
+# image.tag 는 CI 가 push 마다 이 파일을 갱신([skip ci]).
+
+name: palworld-admin
+
+image:
+  repository: ghcr.io/idoyo7/palworld-admin
+  tag: "c77555"
+  pullPolicy: IfNotPresent
+
+replicas: 1
+
+# 관리 대상 팰월드 네임스페이스(앱에 env 로 주입). 보통 릴리스 네임스페이스와 동일.
+palworldNamespace: palworld
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 96Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+service:
+  port: 80
+
+# 최소 RBAC (Role + RoleBinding + SA). 대상 네임스페이스 = 릴리스 네임스페이스.
+rbac:
+  create: true
+
+# Istio VirtualService. 인증(oauth2-proxy) 붙기 전에는 enabled:false 로 두어 공개 노출 방지.
+virtualService:
+  enabled: false
+  host: palworld.makgol.com
+  gateway: istio-system/makgol-gateway
+  # upstreamHost 가 비면 앱 서비스로 직결(인증 없음), 값이 있으면 그 호스트(oauth2-proxy)로 라우팅.
+  upstreamHost: ""
+  timeout: 60s
+  retries:
+    attempts: 3
+    perTryTimeout: 20s

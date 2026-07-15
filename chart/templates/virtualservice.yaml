@@ -1,0 +1,28 @@
+{{- if .Values.virtualService.enabled }}
+{{- $upstream := .Values.virtualService.upstreamHost | default (printf "%s-service.%s.svc.cluster.local" (include "palworld-admin.name" .) .Release.Namespace) }}
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ include "palworld-admin.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "palworld-admin.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.virtualService.host }}
+  gateways:
+    - {{ .Values.virtualService.gateway }}
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: {{ $upstream }}
+            port:
+              number: 80
+      timeout: {{ .Values.virtualService.timeout }}
+      retries:
+        attempts: {{ .Values.virtualService.retries.attempts }}
+        perTryTimeout: {{ .Values.virtualService.retries.perTryTimeout }}
+{{- end }}

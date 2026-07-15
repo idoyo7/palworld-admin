@@ -1,0 +1,54 @@
+{{- if .Values.rbac.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "palworld-admin.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "palworld-admin.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "palworld-admin.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "palworld-admin.labels" . | nindent 4 }}
+rules:
+  # 읽기: 서버 상태/설정/로그
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get"]
+  - apiGroups: ["batch"]
+    resources: ["cronjobs"]
+    verbs: ["get"]
+  # 업데이트 트리거: Job 생성 (서버 scale 권한은 없음 — 최소권한)
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "palworld-admin.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "palworld-admin.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "palworld-admin.name" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "palworld-admin.name" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
