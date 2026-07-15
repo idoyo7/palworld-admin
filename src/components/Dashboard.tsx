@@ -337,7 +337,7 @@ function JobBadge({ status }: { status: UpdateJob["status"] }) {
 // ── 설정 탐색기 ───────────────────────────────────────
 function SettingsPanel({ settings }: { settings: SettingsResponse | null }) {
   const [q, setQ] = useState("");
-  const [onlyChanged, setOnlyChanged] = useState(false);
+  const [onlyChanged, setOnlyChanged] = useState(true);
 
   const groups = useMemo(() => {
     if (!settings) return [];
