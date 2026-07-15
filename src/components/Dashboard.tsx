@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ServerStatus, UpdateJob } from "@/lib/k8s";
 import type { SettingType } from "@/lib/settings-reference";
 import { fmtValue, multiplierLabel } from "@/lib/format";
+import MetricsSection from "@/components/MetricsSection";
 
 interface SettingItem {
   envKey: string;
@@ -85,6 +86,8 @@ export default function Dashboard() {
         <ServerPanel status={status} />
         <UpdatePanel jobs={jobs} jobRunning={jobRunning} onChanged={refresh} />
       </div>
+
+      <MetricsSection />
 
       <SettingsPanel settings={settings} />
 

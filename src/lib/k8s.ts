@@ -212,3 +212,37 @@ export async function getJobLogs(jobName: string, tailLines = 200): Promise<stri
     return `(로그를 읽을 수 없습니다: ${(e as Error).message})`;
   }
 }
+
+// ── 리소스 스펙 (그래프 기준선용: cores / bytes) ──────
+function parseCpu(s?: string): number | null {
+  if (!s) return null;
+  if (s.endsWith("m")) return parseInt(s, 10) / 1000;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+function parseMem(s?: string): number | null {
+  if (!s) return null;
+  const units: Record<string, number> = {
+    Ki: 1024, Mi: 1024 ** 2, Gi: 1024 ** 3, Ti: 1024 ** 4,
+    K: 1e3, M: 1e6, G: 1e9, T: 1e12,
+  };
+  const m = s.match(/^(\d+(?:\.\d+)?)([A-Za-z]+)?$/);
+  if (!m) return null;
+  const val = Number(m[1]);
+  const unit = m[2];
+  return unit && units[unit] ? val * units[unit] : val;
+}
+
+export interface ResourceSpec {
+  limits: { cpuCores: number | null; memBytes: number | null };
+  requests: { cpuCores: number | null; memBytes: number | null };
+}
+
+export async function getResourceSpec(): Promise<ResourceSpec> {
+  const dep = await apps().readNamespacedDeployment({ name: DEPLOY, namespace: NS });
+  const r = dep.spec?.template?.spec?.containers?.[0]?.resources || {};
+  return {
+    limits: { cpuCores: parseCpu(r.limits?.cpu), memBytes: parseMem(r.limits?.memory) },
+    requests: { cpuCores: parseCpu(r.requests?.cpu), memBytes: parseMem(r.requests?.memory) },
+  };
+}
