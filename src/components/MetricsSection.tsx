@@ -60,6 +60,11 @@ export default function MetricsSection() {
   const cpuData = data.cpu || [];
   const memData = (data.mem || []).map((p) => ({ t: p.t, v: p.v / GiB }));
   const playersData = data.players || [];
+  // Y축은 실제 접속 인원 기준으로 스케일(최소 4) — 상한(16)까지 그리면 소인원 서버에선
+  // 그래프가 바닥에 깔려 변화가 안 보인다. 최대 인원선은 만석에 근접할 때만 표시.
+  const playersPeak = playersData.reduce((m, p) => Math.max(m, p.v), 0);
+  const playersCap = data.playersMax ?? null;
+  const showCapLine = playersCap != null && playersPeak + 1 >= playersCap;
 
   return (
     <div className="mt-8">
@@ -88,10 +93,11 @@ export default function MetricsSection() {
               unit="명"
               color="#a78bfa"
               data={playersData}
-              limit={data.playersMax ?? null}
+              limit={showCapLine ? playersCap : null}
               request={null}
               variant="step"
               allowDecimals={false}
+              yMaxOverride={Math.max(playersPeak + 1, 4)}
               fmt={(v) => Math.round(v).toString()}
               avgFmt={(v) => v.toFixed(1)}
             />
@@ -117,14 +123,14 @@ export default function MetricsSection() {
         />
       </div>
       <p className="mt-2 text-[11px] text-neutral-500">
-        빨강 점선 = limit(CPU/메모리) 또는 최대 인원(접속자), 주황 점선 = request. 실사용이 request보다 크게 높으면 request 를 올려 스케줄링 정확도를 개선할 수 있어요.
+        빨강 점선 = limit, 주황 점선 = request. 접속자 차트 Y축은 실제 인원 기준으로 스케일되며, 만석에 가까워지면 최대 인원선이 표시돼요.
       </p>
     </div>
   );
 }
 
 function MetricChart({
-  title, unit, color, data, limit, request, fmt, avgFmt, variant = "area", allowDecimals = true,
+  title, unit, color, data, limit, request, fmt, avgFmt, variant = "area", allowDecimals = true, yMaxOverride,
 }: {
   title: string; unit: string; color: string;
   data: { t: number; v: number }[];
@@ -133,6 +139,7 @@ function MetricChart({
   avgFmt?: (v: number) => string;
   variant?: "area" | "step";
   allowDecimals?: boolean;
+  yMaxOverride?: number;
 }) {
   const stats = useMemo(() => {
     if (data.length === 0) return null;
@@ -146,9 +153,9 @@ function MetricChart({
   };
   const fmtAvg = avgFmt ?? fmt;
   const gradId = `grad-${title.replace(/\s+/g, "-")}`;
-  const yMax = variant === "step"
+  const yMax = yMaxOverride ?? (variant === "step"
     ? Math.max(limit ?? 0, ...(data.map((d) => d.v).concat(0))) + 1
-    : Math.max(limit ?? 0, ...(data.map((d) => d.v).concat(0))) * 1.1 || 1;
+    : Math.max(limit ?? 0, ...(data.map((d) => d.v).concat(0))) * 1.1 || 1);
 
   return (
     <div className="card p-4">
