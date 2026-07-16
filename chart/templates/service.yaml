@@ -9,6 +9,7 @@ spec:
   selector:
     app: {{ include "palworld-admin.name" . }}
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: {{ .Values.service.port }}
       targetPort: 3000

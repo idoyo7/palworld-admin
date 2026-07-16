@@ -37,6 +37,13 @@ spec:
             - name: METRICS_PROMETHEUS_URL
               value: {{ .Values.metrics.prometheusUrl | quote }}
             {{- end }}
+            {{- if .Values.palworldAdminPassword.secretName }}
+            - name: PALWORLD_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.palworldAdminPassword.secretName }}
+                  key: {{ .Values.palworldAdminPassword.secretKey }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           readinessProbe:

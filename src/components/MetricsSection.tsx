@@ -18,6 +18,8 @@ interface MetricsResp {
   range?: string;
   cpu?: Point[];
   mem?: Point[];
+  players?: Point[];
+  playersMax?: number | null;
   limits?: { cpuCores: number | null; memBytes: number | null } | null;
   requests?: { cpuCores: number | null; memBytes: number | null } | null;
 }
@@ -57,11 +59,12 @@ export default function MetricsSection() {
 
   const cpuData = data.cpu || [];
   const memData = (data.mem || []).map((p) => ({ t: p.t, v: p.v / GiB }));
+  const playersData = data.players || [];
 
   return (
     <div className="mt-8">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold">📈 리소스 사용량</h2>
+        <h2 className="flex items-center gap-2 text-lg font-semibold">📈 서버 메트릭</h2>
         <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
           {RANGES.map((r) => (
             <button
@@ -78,6 +81,22 @@ export default function MetricsSection() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
+        {playersData.length > 0 && (
+          <div className="lg:col-span-2">
+            <MetricChart
+              title="동시 접속자"
+              unit="명"
+              color="#a78bfa"
+              data={playersData}
+              limit={data.playersMax ?? null}
+              request={null}
+              variant="step"
+              allowDecimals={false}
+              fmt={(v) => Math.round(v).toString()}
+              avgFmt={(v) => v.toFixed(1)}
+            />
+          </div>
+        )}
         <MetricChart
           title="CPU"
           unit="cores"
@@ -98,19 +117,22 @@ export default function MetricsSection() {
         />
       </div>
       <p className="mt-2 text-[11px] text-neutral-500">
-        빨강 = limit, 주황 점선 = request. 실사용이 request보다 크게 높으면 request 를 올려 스케줄링 정확도를 개선할 수 있어요.
+        빨강 점선 = limit(CPU/메모리) 또는 최대 인원(접속자), 주황 점선 = request. 실사용이 request보다 크게 높으면 request 를 올려 스케줄링 정확도를 개선할 수 있어요.
       </p>
     </div>
   );
 }
 
 function MetricChart({
-  title, unit, color, data, limit, request, fmt,
+  title, unit, color, data, limit, request, fmt, avgFmt, variant = "area", allowDecimals = true,
 }: {
   title: string; unit: string; color: string;
   data: { t: number; v: number }[];
   limit: number | null; request: number | null;
   fmt: (v: number) => string;
+  avgFmt?: (v: number) => string;
+  variant?: "area" | "step";
+  allowDecimals?: boolean;
 }) {
   const stats = useMemo(() => {
     if (data.length === 0) return null;
@@ -122,8 +144,11 @@ function MetricChart({
     const d = new Date(t);
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   };
-  const gradId = `grad-${title}`;
-  const yMax = Math.max(limit ?? 0, ...(data.map((d) => d.v).concat(0))) * 1.1 || 1;
+  const fmtAvg = avgFmt ?? fmt;
+  const gradId = `grad-${title.replace(/\s+/g, "-")}`;
+  const yMax = variant === "step"
+    ? Math.max(limit ?? 0, ...(data.map((d) => d.v).concat(0))) + 1
+    : Math.max(limit ?? 0, ...(data.map((d) => d.v).concat(0))) * 1.1 || 1;
 
   return (
     <div className="card p-4">
@@ -133,7 +158,7 @@ function MetricChart({
           <div className="text-xs text-neutral-400">
             현재 <span className="font-semibold text-neutral-100">{fmt(stats.cur)}</span>
             <span className="mx-1 text-neutral-600">·</span>최고 {fmt(stats.peak)}
-            <span className="mx-1 text-neutral-600">·</span>평균 {fmt(stats.avg)} {unit}
+            <span className="mx-1 text-neutral-600">·</span>평균 {fmtAvg(stats.avg)} {unit}
           </div>
         )}
       </div>
@@ -147,7 +172,7 @@ function MetricChart({
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
           <XAxis dataKey="t" tickFormatter={fmtTime} stroke="#71717a" fontSize={10} minTickGap={40} />
-          <YAxis stroke="#71717a" fontSize={10} width={44} domain={[0, yMax]} tickFormatter={(v) => fmt(v)} />
+          <YAxis stroke="#71717a" fontSize={10} width={44} domain={[0, yMax]} allowDecimals={allowDecimals} tickFormatter={(v) => fmt(v)} />
           <Tooltip
             contentStyle={{ background: "#0a0a0b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 12 }}
             labelFormatter={(t) => fmtTime(t as number)}
@@ -161,7 +186,7 @@ function MetricChart({
             <ReferenceLine y={limit} stroke="#ef4444" strokeDasharray="4 4" strokeOpacity={0.8}
               label={{ value: `limit ${fmt(limit)}`, position: "insideBottomRight", fill: "#ef4444", fontSize: 10 }} />
           )}
-          <Area type="monotone" dataKey="v" stroke={color} strokeWidth={2} fill={`url(#${gradId})`} isAnimationActive={false} />
+          <Area type={variant === "step" ? "stepAfter" : "monotone"} dataKey="v" stroke={color} strokeWidth={2} fill={`url(#${gradId})`} isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

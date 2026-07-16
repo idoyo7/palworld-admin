@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       getMetricSeries(range.sec, range.step),
       getResourceSpec().catch(() => null),
     ]);
-    if (series.cpu.length === 0 && series.mem.length === 0) {
+    if (series.cpu.length === 0 && series.mem.length === 0 && series.players.length === 0) {
       return NextResponse.json({ enabled: false });
     }
     return NextResponse.json({
@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
       range: key,
       cpu: series.cpu,
       mem: series.mem,
+      players: series.players,
+      playersMax: series.playersMax,
       limits: spec?.limits ?? null,
       requests: spec?.requests ?? null,
     });

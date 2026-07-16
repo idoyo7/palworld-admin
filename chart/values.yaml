@@ -9,6 +9,11 @@ image:
 replicas: 1
 # 관리 대상 팰월드 네임스페이스(앱에 env 로 주입). 보통 릴리스 네임스페이스와 동일.
 palworldNamespace: palworld
+# 팰월드 서버 REST API(admin:<password>) 인증 비밀번호. 접속자 메트릭(/metrics) 수집에 필요.
+# secretName 이 비어있으면 비활성 — env 미주입, palworld_up 등 메트릭 미노출(그래도 앱은 정상 동작).
+palworldAdminPassword:
+  secretName: ""
+  secretKey: rconPassword
 resources:
   requests:
     cpu: 25m
@@ -22,6 +27,10 @@ service:
 # 비우면 그래프 섹션이 아예 안 뜸. 유효/도달 가능할 때만 렌더.
 metrics:
   prometheusUrl: ""
+  # VMServiceScrape 생성 여부 — 활성화 시 이 앱의 /metrics 엔드포인트를 VictoriaMetrics 가 스크레이프.
+  serviceScrape:
+    enabled: false
+    interval: "30s"
 # 최소 RBAC (Role + RoleBinding + SA). 대상 네임스페이스 = 릴리스 네임스페이스.
 rbac:
   create: true

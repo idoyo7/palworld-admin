@@ -1,0 +1,20 @@
+{{- if .Values.metrics.serviceScrape.enabled }}
+# VictoriaMetrics Operator 가 이 앱의 /metrics 엔드포인트를 스크레이프하도록 등록.
+# selector 는 service.yaml 의 Service 객체 labels 를 매칭(ServiceMonitor 와 동일한 방식).
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: {{ include "palworld-admin.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "palworld-admin.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "palworld-admin.name" . }}
+      app.kubernetes.io/name: {{ include "palworld-admin.name" . }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.metrics.serviceScrape.interval | quote }}
+{{- end }}

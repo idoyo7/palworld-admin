@@ -32,3 +32,25 @@ npm run dev     # http://localhost:3000 (kubeconfig 컨텍스트로 클러스터
 
 ## 환경변수 (선택, 기본값 존재)
 `PALWORLD_NAMESPACE=palworld`, `PALWORLD_DEPLOY=palworld-server`, `PALWORLD_CONFIGMAP=palworld-env-config`, `PALWORLD_CRONJOB=palworld-update`.
+
+- `PALWORLD_ADMIN_PASSWORD` — 팰월드 서버 REST API(`admin:<password>`) 인증 비밀번호. 파드 IP로 직접 붙어 접속자 수 등을 조회할 때 사용(REST API 는 Service 로 노출되지 않음). 비어있으면 관련 메트릭이 조회되지 않을 뿐, 앱은 정상 동작.
+
+## Prometheus 메트릭 (`/metrics`)
+`PALWORLD_ADMIN_PASSWORD` 가 설정되면 팰월드 서버 REST API(`/v1/api/metrics`)를 조회해 아래 게이지를 노출한다. 모두 `{server="<PALWORLD_NAMESPACE>"}` 라벨이 붙는다.
+
+| 메트릭 | 설명 |
+|---|---|
+| `palworld_up` | REST API 도달·인증 성공 시 1, 실패 시 0 (항상 노출) |
+| `palworld_player_count` | 현재 접속자 수 |
+| `palworld_player_max` | 최대 접속자 수 |
+| `palworld_server_fps` | 서버 FPS |
+| `palworld_server_fps_average` | 서버 평균 FPS (필드가 있을 때만 노출) |
+| `palworld_server_frame_time_ms` | 프레임 시간(ms) |
+| `palworld_uptime_seconds` | 서버 가동 시간(초) |
+| `palworld_base_camp_count` | 거점 수 |
+| `palworld_in_game_days` | 게임 내 경과일 |
+
+## Helm values (`chart/values.yaml`)
+- `palworldAdminPassword.secretName` / `secretKey` — 위 REST API 비밀번호를 담은 Secret 이름/키. `secretName` 이 비면 `PALWORLD_ADMIN_PASSWORD` env 미주입(기본값).
+- `metrics.prometheusUrl` — 리소스 사용량 그래프용 Prometheus 호환 query 엔드포인트. 비면 그래프 섹션 비표시.
+- `metrics.serviceScrape.enabled` / `interval` — `true` 시 `VMServiceScrape` 를 생성해 `/metrics` 를 VictoriaMetrics 가 스크레이프(기본 비활성, 기본 interval `30s`).

@@ -26,6 +26,9 @@ interface SettingsResponse {
 
 const POLL_MS = 5000;
 
+// /api/status 응답에 접속자 현황이 추가될 예정 (백엔드 배포 전엔 undefined)
+type StatusWithPlayers = ServerStatus & { players?: { current: number; max: number } | null };
+
 async function jget<T>(url: string): Promise<T> {
   const r = await fetch(url, { cache: "no-store" });
   const j = await r.json();
@@ -34,14 +37,14 @@ async function jget<T>(url: string): Promise<T> {
 }
 
 export default function Dashboard() {
-  const [status, setStatus] = useState<ServerStatus | null>(null);
+  const [status, setStatus] = useState<StatusWithPlayers | null>(null);
   const [statusErr, setStatusErr] = useState<string | null>(null);
   const [settings, setSettings] = useState<SettingsResponse | null>(null);
   const [jobs, setJobs] = useState<UpdateJob[]>([]);
 
   const refresh = useCallback(async () => {
     try {
-      const s = await jget<ServerStatus>("/api/status");
+      const s = await jget<StatusWithPlayers>("/api/status");
       setStatus(s);
       setStatusErr(null);
     } catch (e) {
@@ -78,7 +81,16 @@ export default function Dashboard() {
       <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="상태" value={running ? "가동 중" : "중지"} accent={running ? "green" : "red"} />
         <StatCard label="게임 버전" value={status?.gameVersion || status?.imageTag || "—"} />
-        <StatCard label="최대 인원" value={settingCurrent(settings, "PLAYERS") || "—"} suffix="명" />
+        {status?.players ? (
+          <StatCard
+            label="접속자"
+            value={String(status.players.current)}
+            suffix={` / ${status.players.max} 명`}
+            accent={status.players.current > 0 ? "green" : "neutral"}
+          />
+        ) : (
+          <StatCard label="최대 인원" value={settingCurrent(settings, "PLAYERS") || "—"} suffix="명" />
+        )}
         <StatCard label="부팅시 업데이트" value={status?.updateOnBoot === "true" ? "ON" : "OFF"} accent={status?.updateOnBoot === "true" ? "amber" : "neutral"} />
       </section>
 

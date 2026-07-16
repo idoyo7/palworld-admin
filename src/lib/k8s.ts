@@ -121,6 +121,23 @@ export async function getServerStatus(): Promise<ServerStatus> {
   };
 }
 
+// ── 실행 중인 서버 파드 IP (REST API 8212 직접 호출용, Service 미노출) ──
+export async function getServerPodIP(): Promise<string | null> {
+  const podList = await core()
+    .listNamespacedPod({ namespace: NS, labelSelector: "app.kubernetes.io/name=palworld" })
+    .catch(() => null);
+
+  // 라벨 셀렉터가 안 맞을 수 있어 이름 prefix 로도 보강 (getServerStatus 와 동일 로직)
+  let pods = podList?.items || [];
+  if (pods.length === 0) {
+    const all = await core().listNamespacedPod({ namespace: NS }).catch(() => null);
+    pods = (all?.items || []).filter((p) => p.metadata?.name?.startsWith(`${DEPLOY}-`));
+  }
+
+  const running = pods.find((p) => p.status?.phase === "Running");
+  return running?.status?.podIP || null;
+}
+
 // ── 설정 configmap ────────────────────────────────────
 export async function getConfigMap(): Promise<Record<string, string>> {
   const cm = await core().readNamespacedConfigMap({ name: CONFIGMAP, namespace: NS });

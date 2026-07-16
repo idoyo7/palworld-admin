@@ -17,6 +17,8 @@ export interface Point {
 export interface MetricSeries {
   cpu: Point[]; // cores
   mem: Point[]; // bytes
+  players: Point[]; // 접속자 수
+  playersMax: number | null; // 최대 접속 인원(마지막 값)
 }
 
 async function rangeQuery(query: string, start: number, end: number, step: number): Promise<Point[]> {
@@ -38,11 +40,17 @@ export async function getMetricSeries(rangeSec: number, stepSec: number): Promis
   const start = end - rangeSec;
   const cpuQ = `sum(rate(container_cpu_usage_seconds_total{${SEL}}[5m]))`;
   const memQ = `sum(container_memory_working_set_bytes{${SEL}})`;
-  const [cpu, mem] = await Promise.all([
+  const playersQ = `max(palworld_player_count{server="${NS}"})`;
+  const playersMaxQ = `max(palworld_player_max{server="${NS}"})`;
+  const [cpu, mem, players, playersMaxSeries] = await Promise.all([
     rangeQuery(cpuQ, start, end, stepSec),
     rangeQuery(memQ, start, end, stepSec),
+    // palworld_* 메트릭은 아직 스크레이프 전이거나 REST 비활성일 수 있어 조회 실패해도 cpu/mem 은 살림
+    rangeQuery(playersQ, start, end, stepSec).catch(() => []),
+    rangeQuery(playersMaxQ, start, end, stepSec).catch(() => []),
   ]);
-  return { cpu, mem };
+  const playersMax = playersMaxSeries.length > 0 ? playersMaxSeries[playersMaxSeries.length - 1].v : null;
+  return { cpu, mem, players, playersMax };
 }
 
 // 백엔드 도달 가능 + 데이터 존재 여부 (그래프 섹션 노출 판단)
