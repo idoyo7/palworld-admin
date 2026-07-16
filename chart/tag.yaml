@@ -3,4 +3,4 @@
 # 다른 설정은 chart/values.yaml(기본값) / mont-helm cvalues(환경 오버라이드)에서.
 # → 태그 전용 파일 분리로 CI 커밋과 사람 편집이 절대 같은 파일을 안 건드림(rebase 충돌 원천 차단).
 image:
-  tag: "6ee4e0"
+  tag: "cd7741"
