@@ -4,6 +4,7 @@
 // 이 컴포넌트는 /swagger 페이지에서 dynamic(..., { ssr: false }) 으로만 불러온다.
 
 import "swagger-ui-react/swagger-ui.css";
+import "@/app/swagger/swagger-dark.css";
 import SwaggerUI from "swagger-ui-react";
 import { palworldOpenApiSpec } from "@/lib/palworld-openapi";
 

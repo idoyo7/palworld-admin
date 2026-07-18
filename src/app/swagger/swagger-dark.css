@@ -1,0 +1,203 @@
+/*
+ * swagger-ui-react 자체 다크모드가 없어 직접 작성한 다크 테마 오버라이드.
+ * 외부 CDN 없이 이 파일만으로 self-contained — swagger-ui.css 뒤에 이 파일을 import 해서 덮어쓴다.
+ * 대시보드 톤(#0a0a0b 배경, emerald/sky 포인트, neutral-100 텍스트)에 맞춘 색상.
+ */
+
+.swagger-ui {
+  filter: none;
+  background: transparent;
+  color: #e5e5e5;
+}
+
+.swagger-ui,
+.swagger-ui .info .title,
+.swagger-ui .opblock-tag,
+.swagger-ui .opblock .opblock-summary-operation-id,
+.swagger-ui .opblock .opblock-summary-path,
+.swagger-ui .opblock .opblock-summary-path__deprecated,
+.swagger-ui .opblock .opblock-summary-description,
+.swagger-ui table thead tr td,
+.swagger-ui table thead tr th,
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type,
+.swagger-ui .parameter__deprecated,
+.swagger-ui .parameter__in,
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_links,
+.swagger-ui .btn,
+.swagger-ui label,
+.swagger-ui .tab li,
+.swagger-ui .opblock-description-wrapper p,
+.swagger-ui .opblock-external-docs-wrapper p,
+.swagger-ui .opblock-title_normal p,
+.swagger-ui .renderedMarkdown p,
+.swagger-ui .response-col_description__inner p,
+.swagger-ui .model-title,
+.swagger-ui .model,
+.swagger-ui .prop-type,
+.swagger-ui section.models h4,
+.swagger-ui section.models.is-open h4 {
+  color: #e5e5e5;
+}
+
+.swagger-ui .info .base-url,
+.swagger-ui .info li,
+.swagger-ui .info p,
+.swagger-ui .info table,
+.swagger-ui .opblock-description-wrapper,
+.swagger-ui .opblock-external-docs-wrapper,
+.swagger-ui .opblock-title_normal,
+.swagger-ui .response-col_description,
+.swagger-ui .prop-format,
+.swagger-ui .parameter__extension,
+.swagger-ui .tab-item {
+  color: #a3a3a3;
+}
+
+/* 배경 계열 (카드/블록/입력창) — 대시보드의 .card 톤(white/4% + border white/10)에 맞춤 */
+.swagger-ui .scheme-container,
+.swagger-ui .opblock,
+.swagger-ui .opblock .opblock-section-header,
+.swagger-ui section.models,
+.swagger-ui section.models .model-container,
+.swagger-ui .responses-inner,
+.swagger-ui .tab,
+.swagger-ui .dialog-ux .modal-ux {
+  background: #141416;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.swagger-ui input[type="text"],
+.swagger-ui input[type="password"],
+.swagger-ui input[type="search"],
+.swagger-ui input[type="email"],
+.swagger-ui input[type="file"],
+.swagger-ui textarea,
+.swagger-ui select {
+  background: #0a0a0b;
+  color: #e5e5e5;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.swagger-ui .opblock .opblock-section-header {
+  background: #141416;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.swagger-ui .opblock-tag {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.swagger-ui .opblock-tag:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* 메서드별 좌측 컬러 바 + 배지 색은 유지, 블록 본문 배경만 다크로 */
+.swagger-ui .opblock.opblock-get {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.swagger-ui .opblock.opblock-post {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.swagger-ui .opblock.opblock-get .opblock-summary {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.swagger-ui .opblock.opblock-post .opblock-summary {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.swagger-ui table thead tr th,
+.swagger-ui table thead tr td {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+.swagger-ui .parameters-col_description input {
+  background: #0a0a0b;
+}
+
+.swagger-ui .model-box {
+  background: rgba(255, 255, 255, 0.03);
+}
+.swagger-ui .model-toggle:after {
+  filter: invert(1);
+}
+
+/* 코드/응답 예시 블록 */
+.swagger-ui .highlight-code,
+.swagger-ui .microlight,
+.swagger-ui .body-param__example,
+.swagger-ui pre {
+  background: #0a0a0b !important;
+  color: #d4d4d4;
+}
+.swagger-ui .microlight code,
+.swagger-ui .highlight-code .microlight {
+  color: #d4d4d4;
+}
+
+.swagger-ui .btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.swagger-ui .btn.execute {
+  background: #10b981;
+  border-color: #10b981;
+  color: #0a0a0b;
+}
+.swagger-ui .btn.authorize {
+  background: transparent;
+  border-color: #10b981;
+  color: #10b981;
+}
+.swagger-ui .btn.cancel {
+  background: transparent;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.swagger-ui select {
+  -webkit-appearance: none;
+}
+
+.swagger-ui .dialog-ux .backdrop-ux {
+  background: rgba(0, 0, 0, 0.7);
+}
+.swagger-ui .dialog-ux .modal-ux-header h3,
+.swagger-ui .dialog-ux .modal-ux-content h4,
+.swagger-ui .dialog-ux .modal-ux-content p,
+.swagger-ui .dialog-ux .modal-ux-content label {
+  color: #e5e5e5;
+}
+.swagger-ui .dialog-ux .modal-ux-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.swagger-ui .copy-to-clipboard {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.swagger-ui .servers-title,
+.swagger-ui .servers > label {
+  color: #e5e5e5;
+}
+
+.swagger-ui .response-content-type,
+.swagger-ui .response-control-media-type__accept-message {
+  color: #a3a3a3;
+}
+
+.swagger-ui .filter .operation-filter-input {
+  background: #0a0a0b;
+  color: #e5e5e5;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.swagger-ui .no-margin {
+  color: #a3a3a3;
+}
+
+.swagger-ui svg:not([class*="arrow"]) {
+  fill: #a3a3a3;
+}
