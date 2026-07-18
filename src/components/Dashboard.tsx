@@ -444,10 +444,16 @@ function SettingRow({ it }: { it: SettingItem }) {
     it.maxValue !== "" &&
     curNum > maxNum;
 
+  // string 은 자유 입력값이라 슬라이더 범위 개념이 없음 — 범위 줄 자체를 생략.
+  // bool/enum 은 maxValue 에 허용값을, 그 외(int/float)는 min~max 를 보여주되
+  // 둘 다 비어 있으면(공식 문서에 범위가 없는 경우) "~?" 대신 명확히 "범위 미확인" 표시.
+  const isFreeText = it.type === "string";
   const range =
     it.type === "bool" || it.type === "enum"
-      ? it.maxValue
-      : `${it.minValue !== "" ? it.minValue + "~" : "~"}${it.maxValue || "?"}`;
+      ? it.maxValue || "미확인"
+      : it.minValue === "" && it.maxValue === ""
+        ? "미확인"
+        : `${it.minValue !== "" ? it.minValue + "~" : "~"}${it.maxValue || "?"}`;
 
   return (
     <div className={`px-4 py-3 ${it.nonDefault ? "border-l-2 border-emerald-500/60" : "border-l-2 border-transparent"}`}>
@@ -467,8 +473,10 @@ function SettingRow({ it }: { it: SettingItem }) {
       </div>
       <div className="mt-1 flex flex-wrap items-center gap-x-4 text-[11px] text-neutral-500">
         <span>기본값 <span className="text-neutral-400">{fmtValue(it.defaultValue, it.type)}</span></span>
-        <span>범위 <span className="text-neutral-400">{range}</span></span>
-        <span className="font-mono">{it.iniKey}</span>
+        {!isFreeText && (
+          <span>범위 <span className="text-neutral-400">{range}</span></span>
+        )}
+        {it.iniKey && <span className="font-mono">{it.iniKey}</span>}
       </div>
       {it.note && <div className="mt-1 text-[11px] text-amber-200/70">※ {it.note}</div>}
     </div>

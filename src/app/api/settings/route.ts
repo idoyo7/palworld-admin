@@ -10,12 +10,15 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // 레퍼런스에 없고, 화면에 굳이 안 보여도 되는 인프라/시크릿성 키
+// ADMIN_PASSWORD/SERVER_PASSWORD 는 평문 비밀번호라 절대 화면에 노출하지 않는다(대시보드 "others" 버킷 방지).
 const HIDE_KEYS = new Set([
   "PUID",
   "PGID",
   "BAN_LIST_URL",
   "DISABLE_GENERATE_SETTINGS",
   "ACTIVE_UNKO",
+  "ADMIN_PASSWORD",
+  "SERVER_PASSWORD",
 ]);
 
 export async function GET() {

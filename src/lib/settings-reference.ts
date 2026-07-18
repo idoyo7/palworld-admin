@@ -25,6 +25,9 @@ export const SETTING_CATEGORIES = [
   "아이템/드롭/채집",
   "거점/건축",
   "길드/PvP/인원/토글",
+  "네트워크/운영",
+  "월드/기타",
+  "성능",
 ] as const;
 
 export const SETTINGS_REFERENCE: SettingRef[] = [
@@ -91,6 +94,56 @@ export const SETTINGS_REFERENCE: SettingRef[] = [
   { envKey: "ENABLE_AIM_ASSIST_KEYBOARD", iniKey: "bEnableAimAssistKeyboard", koName: "에임 어시스트(키보드)", explanation: "켜면 키보드·마우스에도 조준 보정이 적용된다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "길드/PvP/인원/토글" },
   { envKey: "ENABLE_AIM_ASSIST_PAD", iniKey: "bEnableAimAssistPad", koName: "에임 어시스트(패드)", explanation: "켜면 게임패드에 조준 보정이 적용된다.", type: "bool", defaultValue: "True", minValue: "", maxValue: "True/False", category: "길드/PvP/인원/토글" },
   { envKey: "IS_START_LOCATION_SELECT_BY_MAP", iniKey: "bIsStartLocationSelectByMap", koName: "시작 위치 지도 선택", explanation: "켜면 접속 시 지도에서 시작 지점을 직접 고를 수 있다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "길드/PvP/인원/토글", note: "1.0 기준 기본 False(얼리액세스 시절엔 True). 현재 True." },
+
+  // ── 이하 34개 항목: 2026-07-19 공식 문서(docs.palworldgame.com/settings-and-operation/configuration)
+  // + thijsvanloef/palworld-server-docker README(이 배포가 실제로 쓰는 이미지, env→ini 매핑의 1차 근거) 교차검증으로 추가.
+  // 대부분 min/max 슬라이더 범위는 공식 문서에 없어 확인되지 않음(note 에 "범위 미확인" 명시, 추측 안 함).
+  // 문서에는 있으나 이 docker 이미지가 지원하는 환경변수가 없는 설정(AdditionalDropItem*, BlockRespawnTime,
+  // DenyTechnologyList, GuildRejoinCooldownMinutes, MonsterFarmActionSpeedRate, RespawnPenalty*,
+  // bAllowEnhanceStat_*, bDisplayPvPItemNumOnWorldMap_*, bEnableFastTravelOnlyBaseCamp, bEnableVoiceChat,
+  // bCharacterRecreateInHardcore, VoiceChatMax/ZeroVolumeDistance, bIsShowJoinLeftMessage,
+  // bEnableBuildingPlayerUIdDisplay 등)는 이 ConfigMap 방식으로는 설정할 수 없어 제외했다.
+  // ADMIN_PASSWORD/SERVER_PASSWORD 는 민감정보라 참조 테이블에 넣지 않고 HIDE_KEYS 로 감췄다(settings/route.ts).
+
+  // ── 성능 ──
+  { envKey: "MAX_BUILDING_LIMIT_NUM", iniKey: "MaxBuildingLimitNum", koName: "플레이어당 건축물 수 제한", explanation: "한 플레이어가 지을 수 있는 건축물 총 개수 상한. 0이면 무제한.", type: "int", defaultValue: "0", minValue: "", maxValue: "", category: "성능", note: "범위 미확인(공식 문서에 설명만 있음)." },
+  { envKey: "SERVER_REPLICATE_PAWN_CULL_DISTANCE", iniKey: "ServerReplicatePawnCullDistance", koName: "팰 동기화 거리(cm)", explanation: "플레이어로부터 이 거리 밖의 팰은 서버가 동기화를 생략해 부하를 줄인다. 낮출수록 부하는 줄지만 먼 팰이 안 보일 수 있다.", type: "int", defaultValue: "15000", minValue: "5000", maxValue: "15000", category: "성능", note: "공식 문서에 최소 5000~최대 15000 명시." },
+  { envKey: "ITEM_CONTAINER_FORCE_MARK_DIRTY_INTERVAL", iniKey: "ItemContainerForceMarkDirtyInterval", koName: "컨테이너 강제 동기화 주기(초)", explanation: "상자 등 아이템 컨테이너 UI 를 열어둔 동안 강제로 다시 동기화하는 주기.", type: "float", defaultValue: "1.0", minValue: "", maxValue: "", category: "성능", note: "범위 미확인." },
+  { envKey: "PHYSICS_ACTIVE_DROP_ITEM_MAX_NUM", iniKey: "PhysicsActiveDropItemMaxNum", koName: "물리 연산 드롭 아이템 최대 수", explanation: "물리 시뮬레이션이 적용되는 바닥 드롭 아이템의 최대 개수.", type: "int", defaultValue: "-1", minValue: "", maxValue: "", category: "성능", note: "기본값 -1(무제한으로 추정) — 정확한 의미·범위는 공식 미확인." },
+
+  // ── 네트워크/운영 ──
+  { envKey: "SERVER_NAME", iniKey: "ServerName", koName: "서버 이름", explanation: "서버 목록/접속창에 표시되는 서버 이름.", type: "string", defaultValue: "", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "SERVER_DESCRIPTION", iniKey: "ServerDescription", koName: "서버 설명", explanation: "서버 목록에 표시되는 소개 문구.", type: "string", defaultValue: "", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "PUBLIC_IP", iniKey: "PublicIP", koName: "공개 IP (커뮤니티 서버용)", explanation: "커뮤니티 서버 목록에 노출할 외부 IP를 직접 지정. 보통 비워두면 자동 감지.", type: "string", defaultValue: "", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "PUBLIC_PORT", iniKey: "PublicPort", koName: "공개 포트 (커뮤니티 서버용)", explanation: "커뮤니티 서버 목록에 노출할 외부 포트를 직접 지정.", type: "int", defaultValue: "", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "RCON_ENABLED", iniKey: "RCONEnabled", koName: "RCON 활성화", explanation: "켜면 RCON(원격 콘솔) 프로토콜로 서버 명령을 실행할 수 있다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "네트워크/운영" },
+  { envKey: "RCON_PORT", iniKey: "RCONPort", koName: "RCON 포트", explanation: "RCON 접속에 사용하는 포트 번호.", type: "int", defaultValue: "25575", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "REST_API_ENABLED", iniKey: "RESTAPIEnabled", koName: "REST API 활성화", explanation: "켜면 이 문서(/swagger)가 다루는 REST API(기본 포트 8212)가 열린다.", type: "bool", defaultValue: "True", minValue: "", maxValue: "True/False", category: "네트워크/운영" },
+  { envKey: "REST_API_PORT", iniKey: "RESTAPIPort", koName: "REST API 포트", explanation: "REST API 가 열리는 포트 번호.", type: "int", defaultValue: "8212", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "ENABLE_GAMEDATA_API", iniKey: "", koName: "game-data API 활성화", explanation: "REST API의 /v1/api/game-data(월드 액터 스냅샷) 엔드포인트 노출 여부.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "네트워크/운영", note: "docker 이미지 전용 플래그로 보이며 PalWorldSettings.ini 대응 키는 확인되지 않음." },
+  { envKey: "CROSSPLAY_PLATFORMS", iniKey: "CrossplayPlatforms", koName: "크로스플레이 허용 플랫폼", explanation: "접속을 허용할 플랫폼 목록(구 AllowConnectPlatform 대체).", type: "string", defaultValue: "(Steam,Xbox,PS5,Mac)", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "REGION", iniKey: "Region", koName: "서버 지역", explanation: "서버 목록에 표시되는 지역 정보.", type: "string", defaultValue: "", minValue: "", maxValue: "", category: "네트워크/운영" },
+  { envKey: "USEAUTH", iniKey: "bUseAuth", koName: "계정 인증 사용", explanation: "켜면 플랫폼 계정 인증을 거쳐야 접속할 수 있다. 끄면 인증 없이 접속 가능(보안 위험).", type: "bool", defaultValue: "True", minValue: "", maxValue: "True/False", category: "네트워크/운영" },
+  { envKey: "SHOW_PLAYER_LIST", iniKey: "bShowPlayerList", koName: "플레이어 목록 공개", explanation: "켜면 ESC 메뉴에서 접속자 목록을 볼 수 있다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "네트워크/운영" },
+  { envKey: "CHAT_POST_LIMIT_PER_MINUTE", iniKey: "ChatPostLimitPerMinute", koName: "분당 채팅 전송 제한", explanation: "플레이어 1인이 1분간 보낼 수 있는 채팅 메시지 수.", type: "int", defaultValue: "30", minValue: "", maxValue: "", category: "네트워크/운영", note: "범위 미확인." },
+  { envKey: "ALLOW_CLIENT_MOD", iniKey: "bAllowClientMod", koName: "클라이언트 모드 허용", explanation: "켜면 모드를 설치한 클라이언트의 접속을 허용한다.", type: "bool", defaultValue: "True", minValue: "", maxValue: "True/False", category: "네트워크/운영" },
+  { envKey: "LOG_FORMAT_TYPE", iniKey: "LogFormatType", koName: "로그 포맷", explanation: "서버 로그 출력 형식.", type: "string", defaultValue: "default", minValue: "", maxValue: "", category: "네트워크/운영", note: "공식 REST 문서상 ini 값은 Text/Json 로 보이나 docker 기본값 표기(\"default\")와 표현이 달라 정확한 허용값은 미확인." },
+
+  // ── 월드/기타 ──
+  { envKey: "DIFFICULTY", iniKey: "Difficulty", koName: "난이도", explanation: "서버 전체 난이도 프리셋. 아래 개별 배율 설정으로 세부 조정하는 것이 일반적이라 대부분 기본값으로 둔다.", type: "string", defaultValue: "None", minValue: "", maxValue: "", category: "월드/기타", note: "허용값(예: Normal/Hard 등) 공식 미확인." },
+  { envKey: "RANDOMIZER_TYPE", iniKey: "RandomizerType", koName: "야생 팰 랜덤화 모드", explanation: "None=랜덤화 없음, Region=지역별 범위 내 랜덤, All=완전 랜덤.", type: "enum", defaultValue: "None", minValue: "", maxValue: "None/Region/All", category: "월드/기타", note: "허용값은 공식 문서로 확인." },
+  { envKey: "RANDOMIZER_SEED", iniKey: "RandomizerSeed", koName: "랜덤화 시드", explanation: "팰 스폰 랜덤화에 사용하는 시드 값.", type: "string", defaultValue: "", minValue: "", maxValue: "", category: "월드/기타" },
+  { envKey: "IS_RANDOMIZER_PAL_LEVEL_RANDOM", iniKey: "bIsRandomizerPalLevelRandom", koName: "팰 레벨 완전 랜덤화", explanation: "켜면 야생 팰 레벨이 완전히 무작위. 끄면 지역별 레벨 범위 내에서만 랜덤.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "IS_MULTIPLAY", iniKey: "bIsMultiplay", koName: "멀티플레이 활성화", explanation: "여러 플레이어의 동시 접속을 허용할지 여부.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "HARDCORE", iniKey: "bHardcore", koName: "하드코어 모드", explanation: "켜면 사망 시 리스폰이 불가능해진다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "PAL_LOST", iniKey: "bPalLost", koName: "사망 시 팰 영구 손실", explanation: "켜면 플레이어 사망 시 동행 팰을 영구히 잃는다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "INVISIBLE_OTHER_GUILD_BASE_CAMP_AREA_FX", iniKey: "bInvisibleOtherGuildBaseCampAreaFX", koName: "타 길드 거점 영역 표시 숨김", explanation: "켜면 다른 길드 거점의 영역 경계 이펙트가 보이지 않는다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "BUILD_AREA_LIMIT", iniKey: "bBuildAreaLimit", koName: "건축 구역 제한", explanation: "켜면 패스트 트래블 지점 등 특정 구역 근처 건축을 막는다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "ALLOW_GLOBAL_PALBOX_EXPORT", iniKey: "bAllowGlobalPalboxExport", koName: "글로벌 팰박스 내보내기 허용", explanation: "켜면 글로벌 팰박스로 팰을 저장(내보내기)할 수 있다.", type: "bool", defaultValue: "True", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "ALLOW_GLOBAL_PALBOX_IMPORT", iniKey: "bAllowGlobalPalboxImport", koName: "글로벌 팰박스 가져오기 허용", explanation: "켜면 글로벌 팰박스에서 팰을 불러올 수 있다.", type: "bool", defaultValue: "False", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "AUTO_SAVE_SPAN", iniKey: "AutoSaveSpan", koName: "자동 저장 간격(초)", explanation: "월드 자동 저장 주기.", type: "float", defaultValue: "30.0", minValue: "", maxValue: "", category: "월드/기타", note: "범위 미확인. ini 키 표기는 docker 변수명 기준 추정(공식 미확인)." },
+  { envKey: "ENABLE_PREDATOR_BOSS_PAL", iniKey: "EnablePredatorBossPal", koName: "포식자(보스) 팰 활성화", explanation: "켜면 포식자(Predator) 개체가 보스급 팰로 출현할 수 있다.", type: "bool", defaultValue: "True", minValue: "", maxValue: "True/False", category: "월드/기타" },
+  { envKey: "ITEM_CORRUPTION_MULTIPLIER", iniKey: "ItemCorruptionMultiplier", koName: "아이템 부식 속도 배율", explanation: "아이템이 부식(품질 저하)되는 속도의 배율.", type: "float", defaultValue: "1.0", minValue: "", maxValue: "", category: "월드/기타", note: "범위 미확인." },
 ];
 
 export const REF_BY_KEY: Record<string, SettingRef> = Object.fromEntries(
