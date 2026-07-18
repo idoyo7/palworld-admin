@@ -140,6 +140,12 @@ function Header({ status, running }: { status: ServerStatus | null; running: boo
         >
           📘 REST API 문서
         </Link>
+        <Link
+          href="/mods"
+          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-neutral-300 transition hover:bg-white/10 hover:text-neutral-100"
+        >
+          🧩 추천 모드
+        </Link>
         <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm">
           <span className={`relative flex h-2.5 w-2.5 ${running ? "" : "opacity-60"}`}>
             {running && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />}
