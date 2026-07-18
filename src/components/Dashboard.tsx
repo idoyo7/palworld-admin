@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ServerStatus, UpdateJob } from "@/lib/k8s";
 import type { SettingType } from "@/lib/settings-reference";
@@ -132,12 +133,20 @@ function Header({ status, running }: { status: ServerStatus | null; running: boo
         </div>
         <p className="mt-1 text-sm text-neutral-400">팰월드 서버 상태·설정 · 업데이트 실행</p>
       </div>
-      <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm">
-        <span className={`relative flex h-2.5 w-2.5 ${running ? "" : "opacity-60"}`}>
-          {running && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />}
-          <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${running ? "bg-emerald-400" : "bg-red-400"}`} />
-        </span>
-        <span className="font-medium">{running ? "온라인" : "오프라인"}</span>
+      <div className="flex items-center gap-3">
+        <Link
+          href="/swagger"
+          className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-neutral-300 transition hover:bg-white/10 hover:text-neutral-100"
+        >
+          📘 REST API 문서
+        </Link>
+        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm">
+          <span className={`relative flex h-2.5 w-2.5 ${running ? "" : "opacity-60"}`}>
+            {running && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />}
+            <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${running ? "bg-emerald-400" : "bg-red-400"}`} />
+          </span>
+          <span className="font-medium">{running ? "온라인" : "오프라인"}</span>
+        </div>
       </div>
     </header>
   );
