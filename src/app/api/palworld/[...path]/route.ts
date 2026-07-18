@@ -19,6 +19,13 @@ const ALLOWED: Record<"GET" | "POST", Set<string>> = {
   POST: new Set(["announce", "kick", "ban", "unban", "save", "shutdown", "stop"]),
 };
 
+const DEFAULT_TIMEOUT_MS = 8000;
+// game-data 는 공식 문서상 월드 액터 수에 따라 응답이 매우 커질 수 있다고 명시되어 있어
+// 기본 타임아웃보다 넉넉하게 잡는다.
+const ENDPOINT_TIMEOUT_MS: Record<string, number> = {
+  "game-data": 30000,
+};
+
 async function handle(req: NextRequest, path: string[]): Promise<NextResponse> {
   const method = req.method as "GET" | "POST";
   const endpoint = path.join("/");
@@ -49,7 +56,7 @@ async function handle(req: NextRequest, path: string[]): Promise<NextResponse> {
       },
       body,
       cache: "no-store",
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(ENDPOINT_TIMEOUT_MS[endpoint] ?? DEFAULT_TIMEOUT_MS),
     });
     const text = await res.text();
     return new NextResponse(text, {
