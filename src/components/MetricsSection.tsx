@@ -193,7 +193,10 @@ function MetricChart({
             <ReferenceLine y={limit} stroke="#ef4444" strokeDasharray="4 4" strokeOpacity={0.8}
               label={{ value: `limit ${fmt(limit)}`, position: "insideBottomRight", fill: "#ef4444", fontSize: 10 }} />
           )}
-          <Area type={variant === "step" ? "stepAfter" : "monotone"} dataKey="v" stroke={color} strokeWidth={2} fill={`url(#${gradId})`} isAnimationActive={false} />
+          {/* stepAfter/monotone 은 값이 같은 구간에서 평평하다가 변경 지점에서 수직으로 꺾여 계단처럼
+              보인다. 포인트 사이를 있는 그대로 사선(선형 보간)으로 이어야 값이 바뀌는 순간이
+              자연스러운 기울기로 표현된다. */}
+          <Area type="linear" dataKey="v" stroke={color} strokeWidth={2} fill={`url(#${gradId})`} isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
