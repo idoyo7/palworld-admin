@@ -33,6 +33,8 @@ spec:
           env:
             - name: PALWORLD_NAMESPACE
               value: {{ .Values.palworldNamespace | quote }}
+            - name: PALWORLD_DEPLOY
+              value: {{ .Values.palworldDeploy | quote }}
             {{- if .Values.metrics.prometheusUrl }}
             - name: METRICS_PROMETHEUS_URL
               value: {{ .Values.metrics.prometheusUrl | quote }}

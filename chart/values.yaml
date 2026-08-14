@@ -9,6 +9,10 @@ image:
 replicas: 1
 # 관리 대상 팰월드 네임스페이스(앱에 env 로 주입). 보통 릴리스 네임스페이스와 동일.
 palworldNamespace: palworld
+# 관리 대상 팰월드 서버 Deployment 이름. 앱은 이 이름으로 Deployment 를 조회하고
+# "<이름>-" 접두사로 서버 파드를 찾아 파드 IP:8212(REST API)에 직접 붙는다.
+# 서버 차트의 releaseName 이 palworld 가 아니면(예: palworld2 → palworld2-server) 반드시 맞춰야 한다.
+palworldDeploy: palworld-server
 # 팰월드 서버 REST API(admin:<password>) 인증 비밀번호. 접속자 메트릭(/metrics) 수집에 필요.
 # secretName 이 비어있으면 비활성 — env 미주입, palworld_up 등 메트릭 미노출(그래도 앱은 정상 동작).
 palworldAdminPassword:
